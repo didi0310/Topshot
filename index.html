@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Didi Studio - Pro Version</title>
+    <title>Didi Studio</title>
     
     <!-- THƯ VIỆN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,7 +82,6 @@
                 <button onclick="setCategory('ao')" class="cat-btn transition-colors h-full">Áo</button>
                 <button onclick="setCategory('quan')" class="cat-btn transition-colors h-full">Quần</button>
                 <button onclick="setCategory('phukien')" class="cat-btn transition-colors h-full">Phụ Kiện</button>
-                <!-- Nút Lọc Yêu Thích -->
                 <button onclick="filterWishlist()" class="cat-btn transition-colors h-full text-red-400"><i class="fa-solid fa-heart mr-1"></i>Đã thích</button>
             </div>
         </div>
@@ -95,12 +94,12 @@
         <div id="emptyState" class="hidden text-center py-20 text-gray-600"><i class="fa-solid fa-ghost text-2xl mb-2"></i><p class="text-xs">Không tìm thấy sản phẩm</p></div>
     </main>
 
-    <!-- SOCIAL PROOF TOAST (THÔNG BÁO ẢO) -->
+    <!-- SOCIAL PROOF TOAST (USER TIKTOK) -->
     <div id="socialToast" class="fixed bottom-24 left-4 z-50 bg-[#181818]/95 backdrop-blur border border-white/10 p-3 rounded-lg shadow-2xl flex items-center gap-3 max-w-[280px]">
-        <div id="toastImg" class="w-10 h-10 rounded-full bg-gray-700 bg-cover bg-center"></div>
+        <div id="toastImg" class="w-10 h-10 rounded-full bg-gray-700 bg-cover bg-center flex items-center justify-center text-xs font-bold text-white"></div>
         <div>
             <p class="text-[10px] text-gray-400" id="toastAction">Vừa đặt hàng</p>
-            <p class="text-xs text-white font-bold truncate w-40" id="toastName">Nguyễn Thùy L***</p>
+            <p class="text-xs text-white font-bold truncate w-40" id="toastName">@thuy_linh***</p>
             <p class="text-[10px] text-green-400 mt-0.5"><i class="fa-solid fa-circle-check mr-1"></i>Đã xác nhận</p>
         </div>
     </div>
@@ -124,7 +123,6 @@
                         <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none"><span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md"><i class="fa-solid fa-rotate-left mr-1"></i> Chạm để quay lại</span></div>
                     </div>
                 </div>
-                <!-- Tim yêu thích trong modal -->
                 <button id="modalHeartBtn" class="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur text-white flex items-center justify-center hover:text-red-500 transition" onclick="event.stopPropagation(); toggleWishlistFromModal()">
                     <i class="fa-solid fa-heart text-lg"></i>
                 </button>
@@ -136,11 +134,9 @@
                 <p id="modalName" class="text-gray-400 text-sm mb-6">Tên sản phẩm</p>
                 
                 <div class="flex gap-3 justify-center w-full">
-                    <!-- NÚT SHOPEE (FIX ICON) -->
                     <a id="modalShopee" href="#" target="_blank" class="flex-1 py-3 rounded-lg bg-[#ee4d2d] hover:bg-orange-600 text-white font-bold flex justify-center items-center gap-2 transition active:scale-95">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" class="h-5 w-5 brightness-0 invert" style="filter: brightness(0) invert(1);"> Shopee
                     </a>
-                    <!-- NÚT TIKTOK (FIX ICON) -->
                     <a id="modalTiktok" href="#" target="_blank" class="flex-1 py-3 rounded-lg bg-white hover:bg-gray-200 text-black font-bold flex justify-center items-center gap-2 transition active:scale-95">
                         <i class="fa-brands fa-tiktok text-xl"></i> TikTok
                     </a>
@@ -174,9 +170,7 @@
     <!-- LOGIC JS -->
     <script>
         const USE_GOOGLE_SHEET = true; 
-        // --- ĐÃ FIX LINK CSV CHÍNH XÁC ---
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9T5uUyyr-oaQeIQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
-        
         const GITHUB_IMAGE_BASE = "https://wnoS125.github.io/didistudio/images/";
         const IS_OUT_OF_STOCK = false; 
 
@@ -212,7 +206,7 @@
                         filterProducts();
                         startSocialProof();
                     },
-                    error: function(err) { alert("Lỗi tải dữ liệu! " + err); }
+                    error: function(err) { alert("Lỗi tải dữ liệu!"); }
                 });
             }
         }
@@ -252,27 +246,14 @@
 
         function toggleWishlist(id, btn) {
             const index = wishlist.indexOf(id);
-            if (index > -1) {
-                wishlist.splice(index, 1);
-            } else {
-                wishlist.push(id);
-            }
+            if (index > -1) { wishlist.splice(index, 1); } else { wishlist.push(id); }
             localStorage.setItem('didi_wishlist', JSON.stringify(wishlist));
-            
             if (btn) {
                 const icon = btn.querySelector('i');
                 btn.classList.toggle('active');
-                if (btn.classList.contains('active')) {
-                    icon.classList.remove('fa-regular');
-                    icon.classList.add('fa-solid', 'fa-heart');
-                } else {
-                    icon.classList.remove('fa-solid');
-                    icon.classList.add('fa-regular');
-                }
+                if (btn.classList.contains('active')) { icon.classList.remove('fa-regular'); icon.classList.add('fa-solid', 'fa-heart'); } else { icon.classList.remove('fa-solid'); icon.classList.add('fa-regular'); }
             }
-            if (currentCategory === 'wishlist') {
-                filterProducts();
-            }
+            if (currentCategory === 'wishlist') { filterProducts(); }
         }
 
         function filterWishlist() {
@@ -282,9 +263,16 @@
             filterProducts();
         }
 
-        const lastNames = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Đặng", "Bùi"];
-        const middleNames = ["Thị", "Thu", "Mai", "Ngọc", "Thanh", "Phương", "Khánh", "Minh", "Quỳnh"];
-        const firstNames = ["A", "B", "C", "D", "E", "G", "H", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "X", "Y"];
+        // --- SOCIAL PROOF (TIKTOK USERNAMES 30 CÁI) ---
+        const tiktokUsers = [
+            "thuy.linh95", "ngoc_anh_2k", "trang_beo", "minh_thu_uct", "ha_vi_vi",
+            "be_na_cutie", "thanh.huyen", "linh_ka", "mai_anh_dao", "user_b123",
+            "quynh_aka", "tho_ngoc", "huyen_baby", "tram_anh_99", "ngan_sat_thu",
+            "phuong_ly", "nhu_quynh", "bao_han_hel", "my_duyen", "thu_thao_off",
+            "user9981", "kim_chi_cuc", "ha_linh_official", "thuy_tien", "ngoc_trinh",
+            "hien_ho", "hoa_minzy", "huong_giang", "user_new", "diep_chi"
+        ];
+        
         const actions = ["Vừa đặt hàng", "Đã mua", "Đã chốt đơn", "Vừa đánh giá 5 sao", "Săn được Deal hời"];
 
         function startSocialProof() {
@@ -301,17 +289,20 @@
             const toastAction = document.getElementById('toastAction');
             const toastImg = document.getElementById('toastImg');
 
-            const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
-            const mn = middleNames[Math.floor(Math.random() * middleNames.length)];
-            const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
-            const name = `${ln} ${mn} ${fn}***`;
+            // Random User từ danh sách 30 cái
+            const randomUser = tiktokUsers[Math.floor(Math.random() * tiktokUsers.length)];
+            const name = `@${randomUser}***`; // Thêm @ và che đuôi
             const action = actions[Math.floor(Math.random() * actions.length)];
+            
+            // Avatar là chữ cái đầu
+            const firstChar = randomUser.charAt(0).toUpperCase();
             const hue = Math.floor(Math.random() * 360);
+            
             toastImg.style.backgroundColor = `hsl(${hue}, 60%, 40%)`;
-            toastImg.innerHTML = `<span class="text-white font-bold text-sm flex items-center justify-center h-full w-full">${fn}</span>`;
-
+            toastImg.innerText = firstChar;
             toastName.innerText = name;
             toastAction.innerText = action;
+
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
@@ -339,13 +330,8 @@
             const isLiked = wishlist.includes(pid);
             const modalHeartBtn = document.getElementById('modalHeartBtn');
             const modalHeartIcon = modalHeartBtn.querySelector('i');
-            if (isLiked) {
-                modalHeartIcon.classList.remove('fa-regular');
-                modalHeartIcon.classList.add('fa-solid', 'text-red-500');
-            } else {
-                modalHeartIcon.classList.remove('fa-solid', 'text-red-500');
-                modalHeartIcon.classList.add('fa-regular');
-            }
+            if (isLiked) { modalHeartIcon.classList.remove('fa-regular'); modalHeartIcon.classList.add('fa-solid', 'text-red-500'); } 
+            else { modalHeartIcon.classList.remove('fa-solid', 'text-red-500'); modalHeartIcon.classList.add('fa-regular'); }
 
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('open'); }, 10);
@@ -357,14 +343,8 @@
                 const isLiked = wishlist.includes(currentModalProductId);
                 const modalHeartBtn = document.getElementById('modalHeartBtn');
                 const modalHeartIcon = modalHeartBtn.querySelector('i');
-                
-                if (isLiked) {
-                    modalHeartIcon.classList.remove('fa-regular');
-                    modalHeartIcon.classList.add('fa-solid', 'text-red-500');
-                } else {
-                    modalHeartIcon.classList.remove('fa-solid', 'text-red-500');
-                    modalHeartIcon.classList.add('fa-regular');
-                }
+                if (isLiked) { modalHeartIcon.classList.remove('fa-regular'); modalHeartIcon.classList.add('fa-solid', 'text-red-500'); } 
+                else { modalHeartIcon.classList.remove('fa-solid', 'text-red-500'); modalHeartIcon.classList.add('fa-regular'); }
                 if (currentCategory !== 'wishlist') filterProducts(); 
             }
         }
@@ -411,9 +391,7 @@
             setTimeout(() => {
                 isSpinning = false;
                 result.innerText = IS_OUT_OF_STOCK ? "Chúc bạn may mắn lần sau!" : "Trúng Voucher: FREESHIP";
-                if(!IS_OUT_OF_STOCK) {
-                    setTimeout(() => { navigator.clipboard.writeText("FREESHIP"); alert("Đã copy mã: FREESHIP"); closeWheel(); }, 1500);
-                }
+                if(!IS_OUT_OF_STOCK) { setTimeout(() => { navigator.clipboard.writeText("FREESHIP"); alert("Đã copy mã: FREESHIP"); closeWheel(); }, 1500); }
             }, 4000);
         }
 
