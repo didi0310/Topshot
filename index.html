@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Didi Studio - Pro Version</title>
     
-    <!-- 1. TRACKING GA4 (Dán mã G-XXXXX của bạn vào chỗ G-MÃ_CỦA_BẠN) -->
-    <!-- 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MÃ_CỦA_BẠN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MÃ_CỦA_BẠN');
-    </script> 
-    -->
-
     <!-- THƯ VIỆN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -185,13 +174,15 @@
     <!-- LOGIC JS -->
     <script>
         const USE_GOOGLE_SHEET = true; 
+        // --- ĐÃ FIX LINK CSV CHÍNH XÁC ---
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9T5uUyyr-oaQeIQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
+        
         const GITHUB_IMAGE_BASE = "https://wnoS125.github.io/didistudio/images/";
         const IS_OUT_OF_STOCK = false; 
 
         let allProducts = [];
         let currentCategory = 'all';
-        let wishlist = JSON.parse(localStorage.getItem('didi_wishlist')) || []; // Lấy danh sách yêu thích từ bộ nhớ
+        let wishlist = JSON.parse(localStorage.getItem('didi_wishlist')) || [];
 
         function init() {
             if(USE_GOOGLE_SHEET) {
@@ -219,9 +210,9 @@
                         });
                         document.getElementById('loading').classList.add('hidden');
                         filterProducts();
-                        startSocialProof(); // Bắt đầu chạy thông báo ảo
+                        startSocialProof();
                     },
-                    error: function() { alert("Lỗi tải dữ liệu!"); }
+                    error: function(err) { alert("Lỗi tải dữ liệu! " + err); }
                 });
             }
         }
@@ -236,7 +227,6 @@
             
             data.forEach(p => {
                 const img1 = p.images[0];
-                // Kiểm tra xem đã thích chưa
                 const isLiked = wishlist.includes(p.id);
                 const heartClass = isLiked ? 'active' : '';
                 const heartIcon = isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
@@ -251,7 +241,6 @@
                             </div>
                             ${p.isHot ? '<div class="absolute top-2 left-2 text-orange-500 animate-pulse"><i class="fa-solid fa-fire"></i></div>' : ''}
                         </div>
-                        <!-- NÚT TIM (WISHLIST) -->
                         <button class="heart-btn ${heartClass}" onclick="toggleWishlist(${p.id}, this)">
                             <i class="${heartIcon} text-sm"></i>
                         </button>
@@ -261,17 +250,15 @@
             });
         }
 
-        // --- 1. LOGIC WISHLIST (YÊU THÍCH) ---
         function toggleWishlist(id, btn) {
             const index = wishlist.indexOf(id);
             if (index > -1) {
-                wishlist.splice(index, 1); // Xóa khỏi DS
+                wishlist.splice(index, 1);
             } else {
-                wishlist.push(id); // Thêm vào DS
+                wishlist.push(id);
             }
-            localStorage.setItem('didi_wishlist', JSON.stringify(wishlist)); // Lưu vào trình duyệt
+            localStorage.setItem('didi_wishlist', JSON.stringify(wishlist));
             
-            // Cập nhật giao diện nút
             if (btn) {
                 const icon = btn.querySelector('i');
                 btn.classList.toggle('active');
@@ -283,7 +270,6 @@
                     icon.classList.add('fa-regular');
                 }
             }
-            // Nếu đang ở chế độ lọc "Đã thích", render lại ngay
             if (currentCategory === 'wishlist') {
                 filterProducts();
             }
@@ -296,19 +282,16 @@
             filterProducts();
         }
 
-        // --- 2. SOCIAL PROOF (THÔNG BÁO ẢO REAL) ---
-        // Danh sách họ và tên đệm phổ biến
         const lastNames = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Đặng", "Bùi"];
         const middleNames = ["Thị", "Thu", "Mai", "Ngọc", "Thanh", "Phương", "Khánh", "Minh", "Quỳnh"];
-        const firstNames = ["A", "B", "C", "D", "E", "G", "H", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "X", "Y"]; // Chỉ lấy chữ cái đầu
+        const firstNames = ["A", "B", "C", "D", "E", "G", "H", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "X", "Y"];
         const actions = ["Vừa đặt hàng", "Đã mua", "Đã chốt đơn", "Vừa đánh giá 5 sao", "Săn được Deal hời"];
 
         function startSocialProof() {
-            // Chạy ngẫu nhiên từ 15s đến 45s
             const randomTime = Math.floor(Math.random() * (45000 - 15000 + 1)) + 15000;
             setTimeout(() => {
                 showSocialToast();
-                startSocialProof(); // Lặp lại
+                startSocialProof();
             }, randomTime);
         }
 
@@ -318,33 +301,21 @@
             const toastAction = document.getElementById('toastAction');
             const toastImg = document.getElementById('toastImg');
 
-            // Random tên: Nguyễn Thu L***
             const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
             const mn = middleNames[Math.floor(Math.random() * middleNames.length)];
             const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
             const name = `${ln} ${mn} ${fn}***`;
-
-            // Random hành động
             const action = actions[Math.floor(Math.random() * actions.length)];
-            
-            // Random avatar màu sắc
             const hue = Math.floor(Math.random() * 360);
             toastImg.style.backgroundColor = `hsl(${hue}, 60%, 40%)`;
             toastImg.innerHTML = `<span class="text-white font-bold text-sm flex items-center justify-center h-full w-full">${fn}</span>`;
 
             toastName.innerText = name;
             toastAction.innerText = action;
-
-            // Hiện lên
             toast.classList.add('show');
-            
-            // Ẩn đi sau 4s
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
 
-        // --- LOGIC MODAL ---
         let currentModalProductId = null;
         function openModal(pid) {
             const p = allProducts.find(i => i.id === pid);
@@ -365,7 +336,6 @@
             if (p.links.shopee) { btnShopee.href = p.links.shopee; btnShopee.classList.remove('hidden'); } else { btnShopee.classList.add('hidden'); }
             if (p.links.tiktok) { btnTiktok.href = p.links.tiktok; btnTiktok.classList.remove('hidden'); } else { btnTiktok.classList.add('hidden'); }
 
-            // Cập nhật trạng thái tim trong Modal
             const isLiked = wishlist.includes(pid);
             const modalHeartBtn = document.getElementById('modalHeartBtn');
             const modalHeartIcon = modalHeartBtn.querySelector('i');
@@ -383,9 +353,7 @@
 
         function toggleWishlistFromModal() {
             if (currentModalProductId !== null) {
-                toggleWishlist(currentModalProductId); // Logic lưu/xóa
-                
-                // Cập nhật icon ngay lập tức
+                toggleWishlist(currentModalProductId);
                 const isLiked = wishlist.includes(currentModalProductId);
                 const modalHeartBtn = document.getElementById('modalHeartBtn');
                 const modalHeartIcon = modalHeartBtn.querySelector('i');
@@ -397,7 +365,6 @@
                     modalHeartIcon.classList.remove('fa-solid', 'text-red-500');
                     modalHeartIcon.classList.add('fa-regular');
                 }
-                // Render lại grid nền để cập nhật icon ngoài kia
                 if (currentCategory !== 'wishlist') filterProducts(); 
             }
         }
@@ -406,22 +373,18 @@
             const modal = document.getElementById('productModal');
             modal.classList.remove('open');
             setTimeout(() => { modal.classList.add('hidden'); }, 200);
-            // Nếu đang xem danh sách yêu thích mà bỏ tim trong modal thì cần reload lại list
             if (currentCategory === 'wishlist') filterProducts();
         }
         function flipModalImage() { document.getElementById('flipInner').classList.toggle('do-flip'); }
 
-        // --- FILTER & WHEEL ---
         function filterProducts() {
             const key = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allProducts.filter(p => {
                 const matchKey = p.name.toLowerCase().includes(key) || p.code.toLowerCase().includes(key);
-                
                 let matchCat = false;
                 if (currentCategory === 'all') matchCat = true;
                 else if (currentCategory === 'wishlist') matchCat = wishlist.includes(p.id);
                 else matchCat = p.category === currentCategory;
-
                 return matchKey && matchCat;
             });
             renderProducts(filtered);
