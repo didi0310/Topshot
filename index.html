@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Didi Studio - Zoom Mode</title>
+    <!-- 1. ĐÃ SỬA TIÊU ĐỀ -->
+    <title>Didi Studio</title>
     
     <!-- THƯ VIỆN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,33 +17,41 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
         /* --- GRID CARD --- */
-        .product-card { 
-            transition: transform 0.2s; 
-            cursor: pointer; 
-            -webkit-tap-highlight-color: transparent; /* Bỏ màu xanh khi tap trên mobile */
-        }
+        .product-card { transition: transform 0.2s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .product-card:active { transform: scale(0.97); }
 
-        /* --- MODAL ZOOM --- */
-        #productModal {
-            backdrop-filter: blur(10px);
-            transition: opacity 0.2s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: scale(0.9); opacity: 0;
-        }
-        #productModal.open .modal-content {
-            transform: scale(1); opacity: 1;
+        /* --- MODAL --- */
+        #productModal { backdrop-filter: blur(10px); transition: opacity 0.2s ease; }
+        .modal-content { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.9); opacity: 0; }
+        #productModal.open .modal-content { transform: scale(1); opacity: 1; }
+
+        /* --- 2. HIỆU ỨNG LẬT 3D MỚI (SIÊU MƯỢT) --- */
+        .perspective-1000 { perspective: 1000px; }
+        
+        /* Khối chứa 2 mặt */
+        #flipInner {
+            position: relative;
+            width: 100%; height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Thời gian và độ mượt */
+            transform-style: preserve-3d;
         }
 
-        /* --- FLIP ANIMATION --- */
-        .flip-container { perspective: 1000px; }
-        #modalImg { 
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s; 
-            transform-style: preserve-3d;
+        /* Class để kích hoạt lật */
+        .do-flip { transform: rotateY(180deg); }
+
+        /* Định dạng chung cho mặt trước và sau */
+        .flip-face {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
             backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+            overflow: hidden;
         }
+
+        /* Mặt sau (xoay sẵn 180 độ) */
+        .flip-back { transform: rotateY(180deg); }
 
         /* --- UI KHÁC --- */
         .cat-btn.active { color: #fed7aa; border-bottom: 2px solid #fed7aa; }
@@ -88,28 +97,44 @@
         </div>
     </main>
 
-    <!-- --- MODAL ZOOM (CỬA SỔ BẬT LÊN) --- -->
-    <!-- Z-index 100 đảm bảo đè lên tất cả -->
+    <!-- MODAL ZOOM (CẤU TRÚC MỚI) -->
     <div id="productModal" class="fixed inset-0 z-[100] bg-black/95 hidden flex items-center justify-center px-4" onclick="closeModal()">
-        
         <div class="modal-content w-full max-w-md flex flex-col items-center relative" onclick="event.stopPropagation()">
+            
             <!-- Nút đóng X -->
-            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-3xl z-50 p-2">
+            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-3xl z-50 p-2 hover:scale-110 transition">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
-            <!-- Khu vực ảnh -->
-            <div class="flip-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-[#111] shadow-2xl border border-white/10" onclick="flipModalImage()">
-                <img id="modalImg" src="" class="w-full h-full object-cover" data-idx="0">
-                
-                <!-- Chỉ dẫn -->
-                <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none">
-                    <span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                        <i class="fa-solid fa-hand-pointer mr-1"></i> Chạm để lật ảnh
-                    </span>
-                </div>
-                <div class="absolute top-3 right-3 text-white/80 bg-black/40 p-2 rounded-full pointer-events-none">
-                    <i class="fa-solid fa-rotate text-sm"></i>
+            <!-- Container 3D Flip -->
+            <div class="perspective-1000 relative w-full aspect-[3/4] cursor-pointer" onclick="flipModalImage()">
+                <div id="flipInner">
+                    
+                    <!-- MẶT TRƯỚC -->
+                    <div class="flip-face bg-[#111] border border-white/10 shadow-2xl">
+                        <img id="modalImgFront" src="" class="w-full h-full object-cover">
+                        <!-- Chỉ dẫn mặt trước -->
+                        <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none">
+                            <span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
+                                <i class="fa-solid fa-hand-pointer mr-1"></i> Chạm để lật
+                            </span>
+                        </div>
+                        <div class="absolute top-3 right-3 text-white/80 bg-black/40 p-2 rounded-full pointer-events-none">
+                            <i class="fa-solid fa-rotate text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- MẶT SAU -->
+                    <div class="flip-face flip-back bg-[#111] border border-white/10 shadow-2xl">
+                        <img id="modalImgBack" src="" class="w-full h-full object-cover">
+                        <!-- Chỉ dẫn mặt sau -->
+                        <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none">
+                            <span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Chạm để quay lại
+                            </span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -157,16 +182,15 @@
     <script>
         const USE_GOOGLE_SHEET = true; 
         
-        // --- DÁN LINK CSV CỦA BẠN VÀO ĐÂY ---
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9T5uUyyr-oaQeIQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
-        // -------------------------------------
-
+        // --- LINK CSV CHUẨN CỦA BẠN ---
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9K9T5uUyyr-oaQelQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
+        
+        // LINK GITHUB ẢNH
         const GITHUB_IMAGE_BASE = "https://wnoS125.github.io/didistudio/images/";
         const IS_OUT_OF_STOCK = false; 
 
         let allProducts = [];
         let currentCategory = 'all';
-        let currentModalProductId = null;
 
         function init() {
             if(USE_GOOGLE_SHEET) {
@@ -210,7 +234,6 @@
             
             data.forEach(p => {
                 const img1 = p.images[0];
-                // Onclick gọi hàm openModal
                 const html = `
                     <div class="product-card relative rounded-lg overflow-hidden border border-white/5 shadow-lg group" 
                          onclick="openModal(${p.id})">
@@ -228,41 +251,34 @@
             });
         }
 
-        // --- LOGIC MODAL ---
+        // --- LOGIC MODAL 3D MỚI ---
         function openModal(pid) {
             const p = allProducts.find(i => i.id === pid);
             if (!p) return;
 
-            currentModalProductId = pid;
             const modal = document.getElementById('productModal');
-            const img = document.getElementById('modalImg');
+            const flipInner = document.getElementById('flipInner');
             
-            // Reset ảnh về mặt trước
-            img.src = p.images[0];
-            img.setAttribute('data-idx', 0);
-            img.style.transform = "rotateY(0deg)";
-            img.style.opacity = "1";
+            // 1. Reset trạng thái lật về mặt trước
+            flipInner.classList.remove('do-flip');
 
+            // 2. Gán ảnh mặt trước
+            document.getElementById('modalImgFront').src = p.images[0];
+
+            // 3. Gán ảnh mặt sau (Nếu không có thì lấy ảnh trước để lật cho vui)
+            document.getElementById('modalImgBack').src = p.images[1] ? p.images[1] : p.images[0];
+
+            // 4. Điền thông tin
             document.getElementById('modalCode').innerText = p.code;
             document.getElementById('modalName').innerText = p.name;
             
             const btnShopee = document.getElementById('modalShopee');
             const btnTiktok = document.getElementById('modalTiktok');
             
-            if (p.links.shopee) {
-                btnShopee.href = p.links.shopee;
-                btnShopee.classList.remove('hidden');
-            } else {
-                btnShopee.classList.add('hidden');
-            }
+            if (p.links.shopee) { btnShopee.href = p.links.shopee; btnShopee.classList.remove('hidden'); } else { btnShopee.classList.add('hidden'); }
+            if (p.links.tiktok) { btnTiktok.href = p.links.tiktok; btnTiktok.classList.remove('hidden'); } else { btnTiktok.classList.add('hidden'); }
 
-            if (p.links.tiktok) {
-                btnTiktok.href = p.links.tiktok;
-                btnTiktok.classList.remove('hidden');
-            } else {
-                btnTiktok.classList.add('hidden');
-            }
-
+            // 5. Hiện Modal
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('open'); }, 10);
         }
@@ -271,30 +287,15 @@
             const modal = document.getElementById('productModal');
             modal.classList.remove('open');
             setTimeout(() => { modal.classList.add('hidden'); }, 200);
-            currentModalProductId = null;
         }
 
         function flipModalImage() {
-            if (currentModalProductId === null) return;
-            const p = allProducts.find(i => i.id === currentModalProductId);
-            const img = document.getElementById('modalImg');
-            const currentIdx = parseInt(img.getAttribute('data-idx'));
-            
-            let nextIdx = currentIdx === 0 ? 1 : 0;
-            let nextSrc = p.images[nextIdx];
-            if (!nextSrc) return; 
-
-            img.style.transform = "rotateY(90deg)";
-            img.style.opacity = "0.5";
-            setTimeout(() => {
-                img.src = nextSrc;
-                img.setAttribute('data-idx', nextIdx);
-                img.style.transform = "rotateY(0deg)";
-                img.style.opacity = "1";
-            }, 250);
+            // Đơn giản là thêm/bỏ class do-flip để CSS tự xoay
+            const flipInner = document.getElementById('flipInner');
+            flipInner.classList.toggle('do-flip');
         }
 
-        // --- CÁC HÀM KHÁC GIỮ NGUYÊN ---
+        // --- FILTER & WHEEL ---
         function filterProducts() {
             const key = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allProducts.filter(p => {
