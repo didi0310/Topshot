@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Didi Studio</title>
+    <title>Didi Studio - Pro Version</title>
     
+    <!-- 1. TRACKING GA4 (Dán mã G-XXXXX của bạn vào chỗ G-MÃ_CỦA_BẠN) -->
+    <!-- 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MÃ_CỦA_BẠN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-MÃ_CỦA_BẠN');
+    </script> 
+    -->
+
     <!-- THƯ VIỆN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -18,13 +29,25 @@
         /* --- GRID CARD --- */
         .product-card { transition: transform 0.2s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .product-card:active { transform: scale(0.97); }
+        
+        /* Trái tim yêu thích */
+        .heart-btn {
+            position: absolute; top: 8px; right: 8px; z-index: 30;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .heart-btn.active { background: rgba(239, 68, 68, 0.2); }
+        .heart-btn i { color: white; transition: all 0.2s; }
+        .heart-btn.active i { color: #ef4444; transform: scale(1.2); }
 
         /* --- MODAL --- */
         #productModal { backdrop-filter: blur(10px); transition: opacity 0.2s ease; }
         .modal-content { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.9); opacity: 0; }
         #productModal.open .modal-content { transform: scale(1); opacity: 1; }
 
-        /* --- HIỆU ỨNG LẬT 3D --- */
+        /* --- 3D FLIP --- */
         .perspective-1000 { perspective: 1000px; }
         #flipInner {
             position: relative; width: 100%; height: 100%; text-align: center;
@@ -38,13 +61,16 @@
         }
         .flip-back { transform: rotateY(180deg); }
 
+        /* --- SOCIAL PROOF (THÔNG BÁO ẢO) --- */
+        #socialToast {
+            transform: translateY(100px); opacity: 0; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        #socialToast.show { transform: translateY(0); opacity: 1; }
+
         /* --- UI KHÁC --- */
         .cat-btn.active { color: #fed7aa; border-bottom: 2px solid #fed7aa; }
-        .wheel-container {
-            position: relative; width: 280px; height: 280px; border-radius: 50%; border: 4px solid #333;
-            background: conic-gradient(#ef4444 0deg 60deg, #14b8a6 60deg 120deg, #ef4444 120deg 180deg, #14b8a6 180deg 240deg, #ef4444 240deg 300deg, #14b8a6 300deg 360deg);
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-        }
+        /* Wheel animation */
+        .wheel-container { position: relative; width: 280px; height: 280px; border-radius: 50%; border: 4px solid #333; background: conic-gradient(#ef4444 0deg 60deg, #14b8a6 60deg 120deg, #ef4444 120deg 180deg, #14b8a6 180deg 240deg, #ef4444 240deg 300deg, #14b8a6 300deg 360deg); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
         .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 10; }
     </style>
 </head>
@@ -63,67 +89,70 @@
         <div class="max-w-md mx-auto px-4">
             <div class="flex gap-6 overflow-x-auto no-scrollbar pb-0 text-xs font-medium uppercase tracking-wide text-gray-500 h-8">
                 <button onclick="setCategory('all')" class="cat-btn active transition-colors h-full">Tất cả</button>
-                <button onclick="setCategory('dam')" class="cat-btn transition-colors h-full hover:text-white">Đầm</button>
-                <button onclick="setCategory('ao')" class="cat-btn transition-colors h-full hover:text-white">Áo</button>
-                <button onclick="setCategory('quan')" class="cat-btn transition-colors h-full hover:text-white">Quần</button>
-                <button onclick="setCategory('phukien')" class="cat-btn transition-colors h-full hover:text-white">Phụ Kiện</button>
+                <button onclick="setCategory('dam')" class="cat-btn transition-colors h-full">Đầm</button>
+                <button onclick="setCategory('ao')" class="cat-btn transition-colors h-full">Áo</button>
+                <button onclick="setCategory('quan')" class="cat-btn transition-colors h-full">Quần</button>
+                <button onclick="setCategory('phukien')" class="cat-btn transition-colors h-full">Phụ Kiện</button>
+                <!-- Nút Lọc Yêu Thích -->
+                <button onclick="filterWishlist()" class="cat-btn transition-colors h-full text-red-400"><i class="fa-solid fa-heart mr-1"></i>Đã thích</button>
             </div>
         </div>
     </header>
 
-    <!-- DANH SÁCH SẢN PHẨM -->
+    <!-- LIST -->
     <main class="max-w-md mx-auto px-4 py-6 flex-grow">
-        <div id="loading" class="hidden text-center py-10 text-gray-600 text-xs">
-            <i class="fa-solid fa-circle-notch fa-spin mb-2 text-xl"></i><br>Đang tải dữ liệu...
-        </div>
+        <div id="loading" class="hidden text-center py-10 text-gray-600 text-xs"><i class="fa-solid fa-circle-notch fa-spin mb-2 text-xl"></i><br>Đang tải...</div>
         <div id="productList" class="grid grid-cols-2 gap-4"></div>
-        <div id="emptyState" class="hidden text-center py-20 text-gray-600">
-            <i class="fa-solid fa-ghost text-2xl mb-2"></i><p class="text-xs">Không tìm thấy sản phẩm</p>
-        </div>
+        <div id="emptyState" class="hidden text-center py-20 text-gray-600"><i class="fa-solid fa-ghost text-2xl mb-2"></i><p class="text-xs">Không tìm thấy sản phẩm</p></div>
     </main>
+
+    <!-- SOCIAL PROOF TOAST (THÔNG BÁO ẢO) -->
+    <div id="socialToast" class="fixed bottom-24 left-4 z-50 bg-[#181818]/95 backdrop-blur border border-white/10 p-3 rounded-lg shadow-2xl flex items-center gap-3 max-w-[280px]">
+        <div id="toastImg" class="w-10 h-10 rounded-full bg-gray-700 bg-cover bg-center"></div>
+        <div>
+            <p class="text-[10px] text-gray-400" id="toastAction">Vừa đặt hàng</p>
+            <p class="text-xs text-white font-bold truncate w-40" id="toastName">Nguyễn Thùy L***</p>
+            <p class="text-[10px] text-green-400 mt-0.5"><i class="fa-solid fa-circle-check mr-1"></i>Đã xác nhận</p>
+        </div>
+    </div>
 
     <!-- MODAL ZOOM -->
     <div id="productModal" class="fixed inset-0 z-[100] bg-black/95 hidden flex items-center justify-center px-4" onclick="closeModal()">
         <div class="modal-content w-full max-w-md flex flex-col items-center relative" onclick="event.stopPropagation()">
-            
-            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-3xl z-50 p-2 hover:scale-110 transition">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-3xl z-50 p-2"><i class="fa-solid fa-xmark"></i></button>
 
-            <!-- Container 3D Flip -->
+            <!-- 3D Flip -->
             <div class="perspective-1000 relative w-full aspect-[3/4] cursor-pointer" onclick="flipModalImage()">
                 <div id="flipInner">
-                    <!-- MẶT TRƯỚC -->
+                    <!-- Front -->
                     <div class="flip-face bg-[#111] border border-white/10 shadow-2xl">
                         <img id="modalImgFront" src="" class="w-full h-full object-cover">
-                        <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none">
-                            <span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                                <i class="fa-solid fa-hand-pointer mr-1"></i> Chạm để lật
-                            </span>
-                        </div>
-                        <div class="absolute top-3 right-3 text-white/80 bg-black/40 p-2 rounded-full pointer-events-none"><i class="fa-solid fa-rotate text-sm"></i></div>
+                        <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none"><span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md"><i class="fa-solid fa-hand-pointer mr-1"></i> Chạm để lật</span></div>
                     </div>
-                    <!-- MẶT SAU -->
+                    <!-- Back -->
                     <div class="flip-face flip-back bg-[#111] border border-white/10 shadow-2xl">
                         <img id="modalImgBack" src="" class="w-full h-full object-cover">
-                        <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none">
-                            <span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                                <i class="fa-solid fa-rotate-left mr-1"></i> Chạm để quay lại
-                            </span>
-                        </div>
+                        <div class="absolute bottom-4 left-0 w-full text-center pointer-events-none"><span class="text-white/60 text-[10px] bg-black/50 px-3 py-1 rounded-full backdrop-blur-md"><i class="fa-solid fa-rotate-left mr-1"></i> Chạm để quay lại</span></div>
                     </div>
                 </div>
+                <!-- Tim yêu thích trong modal -->
+                <button id="modalHeartBtn" class="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur text-white flex items-center justify-center hover:text-red-500 transition" onclick="event.stopPropagation(); toggleWishlistFromModal()">
+                    <i class="fa-solid fa-heart text-lg"></i>
+                </button>
             </div>
 
-            <!-- INFO -->
+            <!-- Info & Buttons -->
             <div class="mt-6 w-full text-center">
                 <h2 id="modalCode" class="text-2xl font-bold text-white tracking-widest mb-1">CODE</h2>
                 <p id="modalName" class="text-gray-400 text-sm mb-6">Tên sản phẩm</p>
+                
                 <div class="flex gap-3 justify-center w-full">
-                    <a id="modalShopee" href="#" target="_blank" class="flex-1 py-3 rounded-lg bg-[#ee4d2d] hover:bg-orange-600 text-white font-bold flex justify-center items-center gap-2 transition transform active:scale-95">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" class="h-5 brightness-0 invert"> Shopee
+                    <!-- NÚT SHOPEE (FIX ICON) -->
+                    <a id="modalShopee" href="#" target="_blank" class="flex-1 py-3 rounded-lg bg-[#ee4d2d] hover:bg-orange-600 text-white font-bold flex justify-center items-center gap-2 transition active:scale-95">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" class="h-5 w-5 brightness-0 invert" style="filter: brightness(0) invert(1);"> Shopee
                     </a>
-                    <a id="modalTiktok" href="#" target="_blank" class="flex-1 py-3 rounded-lg bg-white hover:bg-gray-200 text-black font-bold flex justify-center items-center gap-2 transition transform active:scale-95">
+                    <!-- NÚT TIKTOK (FIX ICON) -->
+                    <a id="modalTiktok" href="#" target="_blank" class="flex-1 py-3 rounded-lg bg-white hover:bg-gray-200 text-black font-bold flex justify-center items-center gap-2 transition active:scale-95">
                         <i class="fa-brands fa-tiktok text-xl"></i> TikTok
                     </a>
                 </div>
@@ -131,15 +160,14 @@
         </div>
     </div>
 
-    <!-- FLOATING BUTTONS -->
+    <!-- FLOATING & WHEEL -->
     <div class="fixed bottom-6 right-4 flex flex-col gap-3 z-[60]">
         <button onclick="openWheel()" class="w-10 h-10 bg-gradient-to-br from-pink-600 to-purple-600 rounded-full shadow-lg text-white flex items-center justify-center animate-bounce"><i class="fa-solid fa-gift text-sm"></i></button>
         <a href="https://www.tiktok.com/@username" target="_blank" class="w-10 h-10 bg-black border border-gray-700 rounded-full shadow-lg text-white flex items-center justify-center hover:scale-110 transition"><i class="fa-brands fa-tiktok text-sm"></i></a>
     </div>
 
-    <!-- VÒNG QUAY -->
     <div id="wheelModal" class="fixed inset-0 z-[90] hidden flex items-center justify-center px-4 bg-black/90 backdrop-blur-sm">
-        <div class="bg-[#181818] w-full max-w-xs rounded-2xl p-6 border border-gray-800 flex flex-col items-center relative shadow-2xl">
+        <div class="bg-[#181818] w-full max-w-xs rounded-2xl p-6 border border-gray-800 flex flex-col items-center relative">
             <button onclick="closeWheel()" class="absolute top-3 right-4 text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="text-lg font-bold text-white mb-1">Vòng Quay May Mắn</h3>
             <div class="relative mb-6 mt-4">
@@ -154,19 +182,16 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
+    <!-- LOGIC JS -->
     <script>
         const USE_GOOGLE_SHEET = true; 
-        
-        // --- LINK GỐC CHUẨN XÁC (ĐÃ FIX LỖI 404) ---
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9T5uUyyr-oaQeIQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
-        
-        // LINK GITHUB ẢNH
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9K9T5uUyyr-oaQelQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
         const GITHUB_IMAGE_BASE = "https://wnoS125.github.io/didistudio/images/";
         const IS_OUT_OF_STOCK = false; 
 
         let allProducts = [];
         let currentCategory = 'all';
+        let wishlist = JSON.parse(localStorage.getItem('didi_wishlist')) || []; // Lấy danh sách yêu thích từ bộ nhớ
 
         function init() {
             if(USE_GOOGLE_SHEET) {
@@ -194,8 +219,9 @@
                         });
                         document.getElementById('loading').classList.add('hidden');
                         filterProducts();
+                        startSocialProof(); // Bắt đầu chạy thông báo ảo
                     },
-                    error: function() { alert("Lỗi tải dữ liệu! Hãy kiểm tra đường truyền."); }
+                    error: function() { alert("Lỗi tải dữ liệu!"); }
                 });
             }
         }
@@ -210,10 +236,14 @@
             
             data.forEach(p => {
                 const img1 = p.images[0];
+                // Kiểm tra xem đã thích chưa
+                const isLiked = wishlist.includes(p.id);
+                const heartClass = isLiked ? 'active' : '';
+                const heartIcon = isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+
                 const html = `
-                    <div class="product-card relative rounded-lg overflow-hidden border border-white/5 shadow-lg group" 
-                         onclick="openModal(${p.id})">
-                        <div class="aspect-[3/4] bg-[#111] relative">
+                    <div class="product-card relative rounded-lg overflow-hidden border border-white/5 shadow-lg group">
+                        <div class="aspect-[3/4] bg-[#111] relative" onclick="openModal(${p.id})">
                             <img src="${img1}" onerror="this.src='https://via.placeholder.com/300x400?text=Loading'" class="w-full h-full object-cover">
                             <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/60 to-transparent p-3 pt-6">
                                 <div class="text-white font-bold tracking-widest">${p.code}</div>
@@ -221,57 +251,177 @@
                             </div>
                             ${p.isHot ? '<div class="absolute top-2 left-2 text-orange-500 animate-pulse"><i class="fa-solid fa-fire"></i></div>' : ''}
                         </div>
+                        <!-- NÚT TIM (WISHLIST) -->
+                        <button class="heart-btn ${heartClass}" onclick="toggleWishlist(${p.id}, this)">
+                            <i class="${heartIcon} text-sm"></i>
+                        </button>
                     </div>
                 `;
                 container.innerHTML += html;
             });
         }
 
-        // --- LOGIC MODAL 3D MỚI ---
+        // --- 1. LOGIC WISHLIST (YÊU THÍCH) ---
+        function toggleWishlist(id, btn) {
+            const index = wishlist.indexOf(id);
+            if (index > -1) {
+                wishlist.splice(index, 1); // Xóa khỏi DS
+            } else {
+                wishlist.push(id); // Thêm vào DS
+            }
+            localStorage.setItem('didi_wishlist', JSON.stringify(wishlist)); // Lưu vào trình duyệt
+            
+            // Cập nhật giao diện nút
+            if (btn) {
+                const icon = btn.querySelector('i');
+                btn.classList.toggle('active');
+                if (btn.classList.contains('active')) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid', 'fa-heart');
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                }
+            }
+            // Nếu đang ở chế độ lọc "Đã thích", render lại ngay
+            if (currentCategory === 'wishlist') {
+                filterProducts();
+            }
+        }
+
+        function filterWishlist() {
+            currentCategory = 'wishlist';
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            filterProducts();
+        }
+
+        // --- 2. SOCIAL PROOF (THÔNG BÁO ẢO REAL) ---
+        // Danh sách họ và tên đệm phổ biến
+        const lastNames = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Đặng", "Bùi"];
+        const middleNames = ["Thị", "Thu", "Mai", "Ngọc", "Thanh", "Phương", "Khánh", "Minh", "Quỳnh"];
+        const firstNames = ["A", "B", "C", "D", "E", "G", "H", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "X", "Y"]; // Chỉ lấy chữ cái đầu
+        const actions = ["Vừa đặt hàng", "Đã mua", "Đã chốt đơn", "Vừa đánh giá 5 sao", "Săn được Deal hời"];
+
+        function startSocialProof() {
+            // Chạy ngẫu nhiên từ 15s đến 45s
+            const randomTime = Math.floor(Math.random() * (45000 - 15000 + 1)) + 15000;
+            setTimeout(() => {
+                showSocialToast();
+                startSocialProof(); // Lặp lại
+            }, randomTime);
+        }
+
+        function showSocialToast() {
+            const toast = document.getElementById('socialToast');
+            const toastName = document.getElementById('toastName');
+            const toastAction = document.getElementById('toastAction');
+            const toastImg = document.getElementById('toastImg');
+
+            // Random tên: Nguyễn Thu L***
+            const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const mn = middleNames[Math.floor(Math.random() * middleNames.length)];
+            const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const name = `${ln} ${mn} ${fn}***`;
+
+            // Random hành động
+            const action = actions[Math.floor(Math.random() * actions.length)];
+            
+            // Random avatar màu sắc
+            const hue = Math.floor(Math.random() * 360);
+            toastImg.style.backgroundColor = `hsl(${hue}, 60%, 40%)`;
+            toastImg.innerHTML = `<span class="text-white font-bold text-sm flex items-center justify-center h-full w-full">${fn}</span>`;
+
+            toastName.innerText = name;
+            toastAction.innerText = action;
+
+            // Hiện lên
+            toast.classList.add('show');
+            
+            // Ẩn đi sau 4s
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // --- LOGIC MODAL ---
+        let currentModalProductId = null;
         function openModal(pid) {
             const p = allProducts.find(i => i.id === pid);
             if (!p) return;
+            currentModalProductId = pid;
 
             const modal = document.getElementById('productModal');
             const flipInner = document.getElementById('flipInner');
-            
-            // Reset
             flipInner.classList.remove('do-flip');
 
-            // Gán ảnh
             document.getElementById('modalImgFront').src = p.images[0];
             document.getElementById('modalImgBack').src = p.images[1] ? p.images[1] : p.images[0];
-
-            // Info
             document.getElementById('modalCode').innerText = p.code;
             document.getElementById('modalName').innerText = p.name;
             
             const btnShopee = document.getElementById('modalShopee');
             const btnTiktok = document.getElementById('modalTiktok');
-            
             if (p.links.shopee) { btnShopee.href = p.links.shopee; btnShopee.classList.remove('hidden'); } else { btnShopee.classList.add('hidden'); }
             if (p.links.tiktok) { btnTiktok.href = p.links.tiktok; btnTiktok.classList.remove('hidden'); } else { btnTiktok.classList.add('hidden'); }
 
+            // Cập nhật trạng thái tim trong Modal
+            const isLiked = wishlist.includes(pid);
+            const modalHeartBtn = document.getElementById('modalHeartBtn');
+            const modalHeartIcon = modalHeartBtn.querySelector('i');
+            if (isLiked) {
+                modalHeartIcon.classList.remove('fa-regular');
+                modalHeartIcon.classList.add('fa-solid', 'text-red-500');
+            } else {
+                modalHeartIcon.classList.remove('fa-solid', 'text-red-500');
+                modalHeartIcon.classList.add('fa-regular');
+            }
+
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('open'); }, 10);
+        }
+
+        function toggleWishlistFromModal() {
+            if (currentModalProductId !== null) {
+                toggleWishlist(currentModalProductId); // Logic lưu/xóa
+                
+                // Cập nhật icon ngay lập tức
+                const isLiked = wishlist.includes(currentModalProductId);
+                const modalHeartBtn = document.getElementById('modalHeartBtn');
+                const modalHeartIcon = modalHeartBtn.querySelector('i');
+                
+                if (isLiked) {
+                    modalHeartIcon.classList.remove('fa-regular');
+                    modalHeartIcon.classList.add('fa-solid', 'text-red-500');
+                } else {
+                    modalHeartIcon.classList.remove('fa-solid', 'text-red-500');
+                    modalHeartIcon.classList.add('fa-regular');
+                }
+                // Render lại grid nền để cập nhật icon ngoài kia
+                if (currentCategory !== 'wishlist') filterProducts(); 
+            }
         }
 
         function closeModal() {
             const modal = document.getElementById('productModal');
             modal.classList.remove('open');
             setTimeout(() => { modal.classList.add('hidden'); }, 200);
+            // Nếu đang xem danh sách yêu thích mà bỏ tim trong modal thì cần reload lại list
+            if (currentCategory === 'wishlist') filterProducts();
         }
-
-        function flipModalImage() {
-            document.getElementById('flipInner').classList.toggle('do-flip');
-        }
+        function flipModalImage() { document.getElementById('flipInner').classList.toggle('do-flip'); }
 
         // --- FILTER & WHEEL ---
         function filterProducts() {
             const key = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allProducts.filter(p => {
                 const matchKey = p.name.toLowerCase().includes(key) || p.code.toLowerCase().includes(key);
-                const matchCat = currentCategory === 'all' || p.category === currentCategory;
+                
+                let matchCat = false;
+                if (currentCategory === 'all') matchCat = true;
+                else if (currentCategory === 'wishlist') matchCat = wishlist.includes(p.id);
+                else matchCat = p.category === currentCategory;
+
                 return matchKey && matchCat;
             });
             renderProducts(filtered);
