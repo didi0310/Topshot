@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Didi Studio</title>
     
+    <!-- 1. TỐI ƯU TỐC ĐỘ (PRECONNECT) -->
+    <link rel="preconnect" href="https://docs.google.com">
+    <link rel="preconnect" href="https://didi0310.github.io">
+    <link rel="dns-prefetch" href="https://didi0310.github.io">
+
     <!-- THƯ VIỆN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -26,7 +31,7 @@
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* --- GRID CARD --- */
+        /* GRID CARD */
         .product-card { transition: transform 0.2s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .product-card:active { transform: scale(0.97); }
         
@@ -35,87 +40,66 @@
             position: absolute; top: 8px; right: 8px; z-index: 30;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
             width: 30px; height: 30px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
         }
         .heart-btn.active { background: rgba(239, 68, 68, 0.2); }
         .heart-btn i { color: white; transition: all 0.2s; }
         .heart-btn.active i { color: #ef4444; transform: scale(1.2); }
 
-        /* --- MODAL --- */
+        /* MODAL */
         #productModal { backdrop-filter: blur(10px); transition: opacity 0.2s ease; }
         .modal-content { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.9); opacity: 0; }
         #productModal.open .modal-content { transform: scale(1); opacity: 1; }
 
-        /* --- SLIDER ẢNH --- */
+        /* SLIDER */
         .modal-img-container { position: relative; overflow: hidden; border-radius: 0.75rem; }
         #modalImg { transition: opacity 0.3s ease, transform 0.3s ease; opacity: 1; }
         .fade-anim { opacity: 0.4 !important; transform: scale(0.98); } 
-
-        /* Dots */
-        .dots-container {
-            position: absolute; bottom: 10px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 6px; pointer-events: none;
-        }
+        .dots-container { position: absolute; bottom: 10px; left: 0; width: 100%; display: flex; justify-content: center; gap: 6px; pointer-events: none; }
         .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; transition: all 0.3s; }
         .dot.active { background: white; width: 12px; }
 
-        /* --- UI KHÁC --- */
+        /* UI KHÁC */
         .cat-btn.active { color: #fed7aa; border-bottom: 2px solid #fed7aa; }
         #socialToast { transform: translateY(100px); opacity: 0; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
         #socialToast.show { transform: translateY(0); opacity: 1; }
-        /* --- MUSIC PLAYER --- */
-.music-control {
-    position: fixed; bottom: 24px; left: 24px; z-index: 60;
-    width: 48px; height: 48px;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.3s; overflow: hidden;
-}
-.music-control:active { transform: scale(0.95); }
 
-/* Đĩa than quay */
-.music-disc {
-    width: 100%; height: 100%; border-radius: 50%;
-    background: conic-gradient(#333 0deg 20deg, #111 20deg 40deg, #333 40deg 60deg, #111 60deg 360deg);
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-}
-.music-disc::after { /* Lỗ giữa đĩa */
-    content: ''; position: absolute; width: 12px; height: 12px;
-    background: #0f0f0f; border-radius: 50%; border: 2px solid #555;
-}
-/* Animation quay */
-.spinning { animation: spinDisc 3s linear infinite; }
-@keyframes spinDisc { 100% { transform: rotate(360deg); } }
-
-/* Icon nốt nhạc */
-.music-icon {
-    position: absolute; z-index: 2; color: white; font-size: 14px;
-    transition: opacity 0.3s;
-}
-/* Sóng nhạc (khi bật) */
-.music-wave {
-    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-    width: 20px; height: 20px; pointer-events: none; opacity: 0;
-}
-.playing .music-wave { opacity: 1; animation: floatUp 2s linear infinite; }
-@keyframes floatUp {
-    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translate(-50%, -40px) scale(1.2); opacity: 0; }
-}
+        /* --- TIKTOK BYPASS OVERLAY --- */
+        #browser-prompt {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(5px);
+            display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            padding: 20px;
+        }
+        .arrow-guide {
+            position: absolute; top: 20px; right: 20px; 
+            animation: bounceRight 1.5s infinite;
+        }
+        @keyframes bounceRight {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10px, -10px); }
+        }
     </style>
-
 </head>
 <body class="pb-24 min-h-screen flex flex-col">
+
+    <!-- TIKTOK DETECT OVERLAY -->
+    <div id="browser-prompt">
+        <div class="arrow-guide text-white text-4xl">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </div>
+        <i class="fa-brands fa-chrome text-6xl text-blue-500 mb-6"></i>
+        <h2 class="text-white text-xl font-bold mb-2">Mở bằng Trình Duyệt để xem mượt hơn!</h2>
+        <p class="text-gray-400 text-sm mb-8 px-4">Trình duyệt TikTok có thể bị lỗi. Vui lòng bấm vào dấu <span class="text-white font-bold">...</span> ở góc trên và chọn <span class="text-white font-bold">Mở bằng trình duyệt</span>.</p>
+        <button onclick="document.getElementById('browser-prompt').style.display='none'" class="border border-white/30 text-white px-6 py-2 rounded-full text-sm">Tôi đã hiểu, cứ tiếp tục</button>
+        <!-- Nút ép mở cho Android -->
+        <a id="force-android" href="#" class="hidden mt-4 bg-blue-600 text-white px-6 py-3 rounded-full font-bold">Mở Chrome Ngay</a>
+    </div>
 
     <!-- HEADER -->
     <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-white/5 pt-4 pb-0">
         <div class="max-w-md mx-auto px-4 flex justify-between items-center mb-4">
-            <div class="text-2xl font-bold tracking-[0.2em] text-white">DIDI<span class="text-orange-300">STUDIO</span></div>
+            <div class="text-lg font-bold tracking-[0.2em] text-white">DIDI<span class="text-orange-300">STUDIO</span></div>
             <div class="relative w-1/2">
                 <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Tìm mã..." 
                     class="w-full bg-[#1a1a1a] text-white text-xs rounded-full pl-8 pr-4 py-2 focus:outline-none border border-gray-800 focus:border-orange-300/50 transition-colors placeholder-gray-600">
@@ -125,11 +109,10 @@
         <div class="max-w-md mx-auto px-4">
             <div class="flex gap-6 overflow-x-auto no-scrollbar pb-0 text-xs font-medium uppercase tracking-wide text-gray-500 h-8">
                 <button onclick="setCategory('all')" class="cat-btn active transition-colors h-full">Tất cả</button>
-                <button onclick="setCategory('vay')" class="cat-btn transition-colors h-full">Váy</button>
+                <button onclick="setCategory('dam')" class="cat-btn transition-colors h-full">Đầm</button>
                 <button onclick="setCategory('ao')" class="cat-btn transition-colors h-full">Áo</button>
                 <button onclick="setCategory('quan')" class="cat-btn transition-colors h-full">Quần</button>
-                <button onclick="setCategory('phukien')" class="cat-btn transition-colors h-full">Phụ kiện</button>
-                <button onclick="setCategory('set')" class="cat-btn transition-colors h-full">Set</button>
+                <button onclick="setCategory('phukien')" class="cat-btn transition-colors h-full">Phụ Kiện</button>
                 <button onclick="filterWishlist()" class="cat-btn transition-colors h-full text-red-400"><i class="fa-solid fa-heart mr-1"></i>Đã thích</button>
             </div>
         </div>
@@ -184,19 +167,8 @@
     </div>
 
     <!-- FLOATING BUTTON (TIKTOK ONLY) -->
-    <!-- MUSIC PLAYER -->
-<div class="music-control" onclick="toggleMusic()" id="musicBtn">
-    <div class="music-disc" id="musicDisc"></div>
-    <i class="fa-solid fa-music music-icon" id="musicIcon"></i>
-    <i class="fa-solid fa-music music-wave text-pink-500"></i> <!-- Hiệu ứng bay -->
-    <!-- AUDIO TAG -->
-    <audio id="bgAudio" loop>
-        <!-- Sửa link nhạc của bạn vào đây -->
-        <source src="https://didi0310.github.io/Topshot/images/music.mp3" type="audio/mpeg">
-    </audio>
-</div>
     <div class="fixed bottom-6 right-4 flex flex-col gap-3 z-[60]">
-        <a href="https://www.tiktok.com/@thetopshotdidi" target="_blank" class="w-12 h-12 bg-black border border-gray-700 rounded-full shadow-lg text-white flex items-center justify-center hover:scale-110 transition"><i class="fa-brands fa-tiktok text-lg"></i></a>
+        <a href="https://www.tiktok.com/@didi0310" target="_blank" class="w-12 h-12 bg-black border border-gray-700 rounded-full shadow-lg text-white flex items-center justify-center hover:scale-110 transition"><i class="fa-brands fa-tiktok text-lg"></i></a>
     </div>
 
     <!-- SCRIPT -->
@@ -204,6 +176,28 @@
         const USE_GOOGLE_SHEET = true; 
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQJs9fScBM0g7yKHn2JC6fi5EK9T5uUyyr-oaQeIQkvKrT8v2NKi-8Bx3V0pugjeVXH3Gqtn1aCQTNh/pub?gid=0&single=true&output=csv'; 
         const GITHUB_IMAGE_BASE = "https://didi0310.github.io/Topshot/images/";
+
+        // --- TIKTOK BROWSER DETECTION & BYPASS ---
+        document.addEventListener("DOMContentLoaded", function() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            // Kiểm tra xem có phải là TikTok in-app browser không
+            if (userAgent.indexOf("TikTok") > -1) {
+                // Hiện bảng hướng dẫn
+                document.getElementById('browser-prompt').style.display = 'flex';
+                
+                // Nếu là Android, thử dùng thủ thuật Intent để mở Chrome
+                if (/android/i.test(userAgent)) {
+                    var currentUrl = window.location.href.replace("https://", "").replace("http://", "");
+                    var intentUrl = "intent://" + currentUrl + "#Intent;scheme=https;package=com.android.chrome;end";
+                    
+                    var btnAndroid = document.getElementById('force-android');
+                    btnAndroid.href = intentUrl;
+                    btnAndroid.classList.remove('hidden');
+                    // Tự động kích hoạt sau 1s
+                    // setTimeout(() => { window.location.href = intentUrl; }, 1000);
+                }
+            }
+        });
 
         let allProducts = [];
         let currentCategory = 'all';
@@ -218,24 +212,21 @@
                         allProducts = results.data.map((row, idx) => {
                             let imgs = [];
                             
-                            // Hàm xử lý link ảnh
                             const processImg = (raw) => {
                                 if (!raw || raw.length < 2) return null;
                                 if (raw.includes('http')) return raw; 
-                                return GITHUB_IMAGE_BASE + raw + ".jpg";
+                                return GITHUB_IMAGE_BASE + raw + ".webp";
                             };
 
-                            // Đọc 5 ảnh
                             const i1 = processImg(row.image1); if(i1) imgs.push(i1);
                             const i2 = processImg(row.image2); if(i2) imgs.push(i2);
                             const i3 = processImg(row.image3); if(i3) imgs.push(i3);
                             const i4 = processImg(row.image4); if(i4) imgs.push(i4);
                             const i5 = processImg(row.image5); if(i5) imgs.push(i5);
                             
-                            // Fallback
                             if (imgs.length === 0 && row.code) {
-                                imgs.push(GITHUB_IMAGE_BASE + row.code + "-1.jpg");
-                                imgs.push(GITHUB_IMAGE_BASE + row.code + "-2.jpg");
+                                imgs.push(GITHUB_IMAGE_BASE + row.code + "-1.webp");
+                                imgs.push(GITHUB_IMAGE_BASE + row.code + "-2.webp");
                             }
 
                             return {
@@ -243,26 +234,14 @@
                                 code: row.code || '???',
                                 category: row.category ? row.category.toLowerCase().trim() : 'khac',
                                 name: row.name || 'Sản phẩm mới',
-                                images: imgs,
-                                isHot: (row.is_hot === 'TRUE'), // Google Sheet phải viết hoa chữ TRUE
+                                images: imgs, 
+                                isHot: (row.is_hot === 'TRUE'),
                                 links: { 
                                     shopee: row.shopee_link, 
                                     tiktok: row.tiktok_link  
                                 }
                             };
                         });
-
-                        // --- TÍNH NĂNG MỚI: GHIM HOT LÊN ĐẦU ---
-                        allProducts.sort((a, b) => {
-                            // Nếu a Hot mà b không Hot -> a lên trước (-1)
-                            if (a.isHot && !b.isHot) return -1;
-                            // Nếu b Hot mà a không Hot -> b lên trước (1)
-                            if (!a.isHot && b.isHot) return 1;
-                            // Nếu cả 2 cùng Hot hoặc cùng không Hot -> Giữ nguyên thứ tự cũ
-                            return 0;
-                        });
-                        // ---------------------------------------
-
                         document.getElementById('loading').classList.add('hidden');
                         filterProducts();
                         startSocialProof();
@@ -272,8 +251,7 @@
             }
         }
 
-        // ... (GIỮ NGUYÊN TOÀN BỘ CÁC HÀM BÊN DƯỚI KHÔNG CẦN SỬA) ...
-        
+        // --- LAZY LOAD IMAGE (TỐI ƯU TỐC ĐỘ) ---
         function renderProducts(data) {
             const container = document.getElementById('productList');
             const empty = document.getElementById('emptyState');
@@ -288,7 +266,8 @@
                 const html = `
                     <div class="product-card relative rounded-lg overflow-hidden border border-white/5 shadow-lg group">
                         <div class="aspect-[3/4] bg-[#111] relative" onclick="openModal(${p.id})">
-                            <img src="${img1}" onerror="this.src='https://via.placeholder.com/300x400?text=Loading'" class="w-full h-full object-cover">
+                            <!-- Thêm loading="lazy" để tối ưu tốc độ -->
+                            <img src="${img1}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x400?text=Loading'" class="w-full h-full object-cover">
                             <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/60 to-transparent p-3 pt-6">
                                 <div class="text-white font-bold tracking-widest">${p.code}</div>
                                 <div class="text-gray-400 text-[10px] truncate">${p.name}</div>
@@ -302,6 +281,7 @@
             });
         }
 
+        // --- CÁC HÀM SLIDER, MODAL GIỮ NGUYÊN NHƯ CŨ ---
         let currentModalProductId = null;
         let currentImgIndex = 0;
 
@@ -454,34 +434,7 @@
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
-// --- MUSIC PLAYER LOGIC ---
-let isPlaying = false;
-const bgAudio = document.getElementById('bgAudio');
-const musicDisc = document.getElementById('musicDisc');
-const musicBtn = document.getElementById('musicBtn');
-const musicIcon = document.getElementById('musicIcon');
 
-function toggleMusic() {
-    if (isPlaying) {
-        bgAudio.pause();
-        musicDisc.classList.remove('spinning');
-        musicBtn.classList.remove('playing');
-        musicIcon.className = "fa-solid fa-play music-icon"; // Hiện nút Play
-        musicIcon.style.opacity = "1";
-    } else {
-        bgAudio.play().then(() => {
-            musicDisc.classList.add('spinning');
-            musicBtn.classList.add('playing');
-            musicIcon.className = "fa-solid fa-pause music-icon"; // Hiện nút Pause
-            // Ẩn icon đi để nhìn thấy đĩa quay cho đẹp, hover mới hiện
-            setTimeout(() => { musicIcon.style.opacity = "0.5"; }, 1000);
-        }).catch(err => {
-            console.log("Chặn tự động phát: " + err);
-            alert("Hãy chạm vào màn hình để bật nhạc!");
-        });
-    }
-    isPlaying = !isPlaying;
-}
         init();
     </script>
 </body>
